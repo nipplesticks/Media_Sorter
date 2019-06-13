@@ -5,6 +5,7 @@
 #include <vector>
 #include <Windows.h>
 #include <Commdlg.h>
+#include <shlobj_core.h>
 
 #include "Button/List.h"
 #include "Utility/Timer.h"
@@ -180,6 +181,14 @@ void Run(sf::RenderWindow * wnd)
 					{
 					case ImportLocation:
 						std::cout << "Open Import stuff\n";
+						TCHAR szDir[999];
+						BROWSEINFO bInfo;
+						ZeroMemory(&bInfo, sizeof(bInfo));
+						//https://docs.microsoft.com/sv-se/windows/desktop/api/shlobj_core/nf-shlobj_core-shbrowseforfoldera
+						//https://docs.microsoft.com/sv-se/windows/desktop/api/shlobj_core/ns-shlobj_core-_browseinfoa
+						//https://stackoverflow.com/questions/1953339/how-to-get-full-path-from-shbrowseforfolder-function
+
+
 						ZeroMemory(&g_ofn, sizeof(g_ofn));
 						g_ofn.lStructSize = sizeof(g_ofn);
 						g_ofn.hwndOwner = NULL;
@@ -187,8 +196,8 @@ void Run(sf::RenderWindow * wnd)
 						g_ofn.lpstrFile[0] = '\0';
 						g_ofn.nMaxFile = sizeof(g_szFile);
 						//g_ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
-						g_ofn.lpstrFilter = "All\0";
-						//g_ofn.lpstrFilter = "Folders Only\0zzzzzzzzz.zzzzzzzzzzzzzzzzzzzzzz\0";
+						//g_ofn.lpstrFilter = "All\0";
+						g_ofn.lpstrFilter = "Folders Only\0zzzzzzzzz.zzzzzzzzzzzzzzzzzzzzzz\0";
 						g_ofn.nFilterIndex = 0;
 						g_ofn.lpstrFileTitle = NULL;
 						g_ofn.nMaxFileTitle = 0;
