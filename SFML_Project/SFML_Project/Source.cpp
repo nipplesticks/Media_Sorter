@@ -19,6 +19,7 @@ enum ButtonType
 
 
 void Run(sf::RenderWindow * wnd);
+void Export(const std::string exportPath, std::vector<std::string> folders);
 
 struct ScrollEvent
 {
@@ -241,13 +242,29 @@ void Run(sf::RenderWindow * wnd)
 					case ExportSelected:
 						std::cout << "Export stuff\n";
 						{
-							if (exportPath != "")
+							const std::vector<List::Item>* itemList = list.GetVector();
+							size_t itemListSize = itemList->size();
+							if (exportPath != "" && itemListSize > 0)
 							{
 								// Export everything
+								std::vector<std::string> folders(itemListSize);
+								for (size_t i = 0; i < itemListSize; i++)
+								{
+									folders[i] = itemList->at(i).path;
+								}
+								Export(exportPath, folders);
+								for (size_t i = 0; i < itemListSize; i++)
+								{
+									list.EreaseItemAt(0);
+								}
+							}
+							else if (exportPath == "")
+							{
+								MessageBox(NULL, "You need to select an export path", "Error", MB_OK);
 							}
 							else
 							{
-								MessageBox(NULL, "You need to select an export path", "Error", MB_OK);
+								MessageBox(NULL, "You need to select at least one media location", "Error", MB_OK);
 							}
 
 						}
@@ -272,4 +289,20 @@ void Run(sf::RenderWindow * wnd)
 
 		MousePressedLastFrame = mousePress;
 	}
+}
+
+void Export(const std::string exportPath, std::vector<std::string> folders)
+{
+	std::map<std::string, int> uniqueFolders;
+	for (auto& f : folders)
+	{
+		if (uniqueFolders.find(f) == uniqueFolders.end())
+		{
+			uniqueFolders.insert(std::make_pair(f, 0));
+		}
+	}
+	
+
+
+
 }

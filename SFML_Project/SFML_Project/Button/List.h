@@ -25,6 +25,8 @@ public:
 
 	void AddItem(const std::string & path);
 
+	const std::vector<Item>* GetVector() const;
+
 	const Item & GetItem(int index) const;
 	int GetItemIndexAt(const sf::Vector2f & point);
 	void EreaseItemAt(int index);

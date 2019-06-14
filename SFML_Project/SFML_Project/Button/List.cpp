@@ -47,6 +47,11 @@ void List::AddItem(const std::string & path)
 	m_update = true;
 }
 
+const std::vector<List::Item>* List::GetVector() const
+{
+	return &m_items;
+}
+
 const List::Item & List::GetItem(int index) const
 {
 	return m_items[index];
