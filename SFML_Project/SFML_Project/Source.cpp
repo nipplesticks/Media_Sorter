@@ -27,9 +27,6 @@ struct ScrollEvent
 };
 
 ScrollEvent g_scrollEvent;
-OPENFILENAME g_ofn;
-char g_szFile[256];
-
 int main()
 {
 	UINT width = 1280;
@@ -98,44 +95,51 @@ void Run(sf::RenderWindow * wnd)
 	const UINT NUMBER_OF_BUTTONS = 3;
 
 	std::vector<Button> buttons(NUMBER_OF_BUTTONS);
-	buttons[ImportLocation].SetPosition(sf::Vector2f(0,0));
-	buttons[ImportLocation].SetSize(sf::Vector2f(0.2, 0.2));
-	buttons[ImportLocation].SetAdaptive(true);
-	buttons[ImportLocation].SetFillColor(sf::Color(128, 128, 128));
-	buttons[ImportLocation].SetString("Add Media Location");
-	buttons[ImportLocation].SetTextFillColor(sf::Color::Black);
-	buttons[ImportLocation].SetTextSize(16);
-	buttons[ImportLocation].SetOutlineSize(-2);
-	buttons[ImportLocation].SetOutlineColor(sf::Color::Black);
+	Button exportPathAsButton;
+	{
+		buttons[ImportLocation].SetPosition(sf::Vector2f(0,0));
+		buttons[ImportLocation].SetSize(sf::Vector2f(0.2, 0.2));
+		buttons[ImportLocation].SetAdaptive(true);
+		buttons[ImportLocation].SetFillColor(sf::Color(128, 128, 128));
+		buttons[ImportLocation].SetString("Add Media Location");
+		buttons[ImportLocation].SetTextFillColor(sf::Color::Black);
+		buttons[ImportLocation].SetTextSize(16);
+		buttons[ImportLocation].SetOutlineSize(-2);
+		buttons[ImportLocation].SetOutlineColor(sf::Color::Black);
 
-	buttons[ExportLocation].SetPosition(sf::Vector2f(0.8, 0));
-	buttons[ExportLocation].SetSize(sf::Vector2f(0.2, 0.2));
-	buttons[ExportLocation].SetAdaptive(true);
-	buttons[ExportLocation].SetFillColor(sf::Color(128, 128, 128));
-	buttons[ExportLocation].SetString("Set Export Location");
-	buttons[ExportLocation].SetTextFillColor(sf::Color::Black);
-	buttons[ExportLocation].SetTextSize(16);
-	buttons[ExportLocation].SetOutlineSize(-2);
-	buttons[ExportLocation].SetOutlineColor(sf::Color::Black);
+		buttons[ExportLocation].SetPosition(sf::Vector2f(0.8, 0));
+		buttons[ExportLocation].SetSize(sf::Vector2f(0.2, 0.2));
+		buttons[ExportLocation].SetAdaptive(true);
+		buttons[ExportLocation].SetFillColor(sf::Color(128, 128, 128));
+		buttons[ExportLocation].SetString("Set Export Location");
+		buttons[ExportLocation].SetTextFillColor(sf::Color::Black);
+		buttons[ExportLocation].SetTextSize(16);
+		buttons[ExportLocation].SetOutlineSize(-2);
+		buttons[ExportLocation].SetOutlineColor(sf::Color::Black);
 
-	buttons[ExportSelected].SetPosition(sf::Vector2f(0.8, 0.8));
-	buttons[ExportSelected].SetSize(sf::Vector2f(0.2, 0.2));
-	buttons[ExportSelected].SetAdaptive(true);
-	buttons[ExportSelected].SetFillColor(sf::Color(128, 128, 128));
-	buttons[ExportSelected].SetString("Exported Selected Media");
-	buttons[ExportSelected].SetTextFillColor(sf::Color::Black);
-	buttons[ExportSelected].SetTextSize(16);
-	buttons[ExportSelected].SetOutlineSize(-2);
-	buttons[ExportSelected].SetOutlineColor(sf::Color::Black);
+		exportPathAsButton.SetPosition(sf::Vector2f(0.8, 0.2));
+		exportPathAsButton.SetSize(sf::Vector2f(0.2, 0.2));
+		exportPathAsButton.SetAdaptive(true);
+		exportPathAsButton.SetFillColor(sf::Color::Transparent);
+		exportPathAsButton.SetTextFillColor(sf::Color::Black);
+		exportPathAsButton.SetTextSize(16);
+
+		buttons[ExportSelected].SetPosition(sf::Vector2f(0.8, 0.8));
+		buttons[ExportSelected].SetSize(sf::Vector2f(0.2, 0.2));
+		buttons[ExportSelected].SetAdaptive(true);
+		buttons[ExportSelected].SetFillColor(sf::Color(128, 128, 128));
+		buttons[ExportSelected].SetString("Exported Selected Media");
+		buttons[ExportSelected].SetTextFillColor(sf::Color::Black);
+		buttons[ExportSelected].SetTextSize(16);
+		buttons[ExportSelected].SetOutlineSize(-2);
+		buttons[ExportSelected].SetOutlineColor(sf::Color::Black);
+	}
 
 
+	std::string exportPath = "";
 	List list(true);
 
 	list.SetRect(0.21, 0.0, 0.58, 1.0f);
-	for (int i = 0; i < 5000; i++)
-	{
-		list.AddItem(std::to_string(i));
-	}
 
 	bool MousePressedLastFrame = false;
 
@@ -180,39 +184,73 @@ void Run(sf::RenderWindow * wnd)
 					switch (bt)
 					{
 					case ImportLocation:
+					{
 						std::cout << "Open Import stuff\n";
-						TCHAR szDir[999];
-						BROWSEINFO bInfo;
-						ZeroMemory(&bInfo, sizeof(bInfo));
-						//https://docs.microsoft.com/sv-se/windows/desktop/api/shlobj_core/nf-shlobj_core-shbrowseforfoldera
-						//https://docs.microsoft.com/sv-se/windows/desktop/api/shlobj_core/ns-shlobj_core-_browseinfoa
-						//https://stackoverflow.com/questions/1953339/how-to-get-full-path-from-shbrowseforfolder-function
-
-
-						ZeroMemory(&g_ofn, sizeof(g_ofn));
-						g_ofn.lStructSize = sizeof(g_ofn);
-						g_ofn.hwndOwner = NULL;
-						g_ofn.lpstrFile = g_szFile;
-						g_ofn.lpstrFile[0] = '\0';
-						g_ofn.nMaxFile = sizeof(g_szFile);
-						//g_ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
-						//g_ofn.lpstrFilter = "All\0";
-						g_ofn.lpstrFilter = "Folders Only\0zzzzzzzzz.zzzzzzzzzzzzzzzzzzzzzz\0";
-						g_ofn.nFilterIndex = 0;
-						g_ofn.lpstrFileTitle = NULL;
-						g_ofn.nMaxFileTitle = 0;
-						g_ofn.lpstrInitialDir = NULL;
-						g_ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-						GetOpenFileNameA(&g_ofn);
-						
-						MessageBox(NULL, g_ofn.lpstrFile, "File Name", MB_OK);
+						LPITEMIDLIST lpItem = NULL;
+						bool first = true;
+						while (lpItem != NULL || first)
+						{
+							first = false;
+							TCHAR szDir[999];
+							BROWSEINFO bInfo;
+							ZeroMemory(&bInfo, sizeof(bInfo));
+							bInfo.hwndOwner = NULL;
+							bInfo.pidlRoot = NULL;
+							bInfo.pszDisplayName = szDir;
+							bInfo.lpszTitle = "Please, select a folder";
+							bInfo.ulFlags = 0;
+							bInfo.lpfn = NULL;
+							bInfo.lParam = 0;
+							bInfo.iImage = -1;
+							lpItem = SHBrowseForFolder(&bInfo);
+							if (lpItem != NULL)
+							{
+								SHGetPathFromIDList(lpItem, szDir);
+								//MessageBox(NULL, szDir, "File Name", MB_OK);
+								list.AddItem(std::string(szDir));
+							}
+						}
+					}
 						break;
 					case ExportLocation:
 						std::cout << "Open Export stuff\n";
+						{
+							LPITEMIDLIST lpItem = NULL;
+							TCHAR szDir[999];
+							BROWSEINFO bInfo;
+							ZeroMemory(&bInfo, sizeof(bInfo));
+							bInfo.hwndOwner = NULL;
+							bInfo.pidlRoot = NULL;
+							bInfo.pszDisplayName = szDir;
+							bInfo.lpszTitle = "Please, select a folder";
+							bInfo.ulFlags = 0;
+							bInfo.lpfn = NULL;
+							bInfo.lParam = 0;
+							bInfo.iImage = -1;
+							lpItem = SHBrowseForFolder(&bInfo);
+							if (lpItem != NULL)
+							{
+								SHGetPathFromIDList(lpItem, szDir);
+								
+								exportPath = std::string(szDir);
+								exportPathAsButton.SetString(exportPath);
+							}
+							
+						}
 						break;
 					case ExportSelected:
 						std::cout << "Export stuff\n";
+						{
+							if (exportPath != "")
+							{
+								// Export everything
+							}
+							else
+							{
+								MessageBox(NULL, "You need to select an export path", "Error", MB_OK);
+							}
+
+						}
 						break;
 					}
 				}
@@ -229,6 +267,7 @@ void Run(sf::RenderWindow * wnd)
 			buttons[i].Draw(wnd);
 		}
 		list.Draw(wnd);
+		exportPathAsButton.Draw(wnd);
 		wnd->display();
 
 		MousePressedLastFrame = mousePress;
