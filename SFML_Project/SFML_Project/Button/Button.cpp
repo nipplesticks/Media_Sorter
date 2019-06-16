@@ -62,7 +62,7 @@ void Button::SetTexture(sf::Texture * texture)
 	m_shape.setTexture(m_texture);
 }
 
-void Button::SetString(const std::string & string)
+void Button::SetString(const std::wstring & string)
 {
 	m_string = string;
 	m_text.setString(m_string);
@@ -121,14 +121,14 @@ const sf::Texture * Button::GetTexture() const
 	return m_texture;
 }
 
-const std::string & Button::GetString() const
+const std::wstring & Button::GetString() const
 {
 	return m_string;
 }
 
 bool Button::PointInside(const sf::Vector2f & point) const
 {
-	return m_shape.getGlobalBounds().contains(point);
+	return m_shape.getGlobalBounds().contains(point);	
 }
 
 void Button::Draw(sf::RenderWindow * wnd)
@@ -160,6 +160,11 @@ void Button::_update()
 	bool hasPopped = false;
 	m_text.setString(m_string);
 	float textwidth = m_text.getLocalBounds().width;
+	float texth = m_text.getLocalBounds().height;
+
+	if (m_shape.getSize().y < texth)
+		m_shape.setSize(sf::Vector2f(m_shape.getSize().x, texth));
+
 	while (textwidth > m_shape.getSize().x)
 	{
 		std::string str = m_text.getString();

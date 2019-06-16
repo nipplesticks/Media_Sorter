@@ -22,7 +22,7 @@ public:
 	void SetTexture(sf::Texture * texture);
 	void SetAdaptive(bool adapt = true);
 
-	void SetString(const std::string & string);
+	void SetString(const std::wstring & string);
 	void SetTextSize(float size);
 	void SetTextFillColor(const sf::Color & color);
 	void SetTextOutlineColor(const sf::Color & color);
@@ -33,7 +33,7 @@ public:
 	const sf::Color & GetFillColor() const;
 	const sf::Color & GetOutlineColor() const;
 	const sf::Texture * GetTexture() const;
-	const std::string & GetString() const;
+	const std::wstring & GetString() const;
 
 	bool PointInside(const sf::Vector2f &point) const;
 	void Draw(sf::RenderWindow * wnd);
@@ -50,7 +50,7 @@ private:
 	sf::Texture * m_texture = nullptr;
 	sf::Text m_text;
 
-	std::string m_string = "";
+	std::wstring m_string = L"";
 	bool m_adaptive = false;
 	bool m_update = false;
 };

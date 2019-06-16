@@ -31,7 +31,7 @@ void List::SetAdaptive(bool adaptive)
 	m_adaptive = adaptive;
 }
 
-void List::AddItem(const std::string & path)
+void List::AddItem(const std::wstring & path)
 {
 	Item item(path);
 	item.Remove.SetTexture(&m_cross);

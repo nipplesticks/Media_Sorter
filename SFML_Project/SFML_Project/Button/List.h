@@ -7,14 +7,14 @@ class List
 public:
 	struct Item
 	{
-		Item(const std::string & _path = "")
+		Item(const std::wstring & _path = L"")
 		{
 			path = _path;
 		}
 
 		Button Sprite;
 		Button Remove;
-		std::string path;
+		std::wstring path;
 	};
 public:
 	List(bool adaptive = false);
@@ -23,7 +23,7 @@ public:
 	void SetRect(float x, float y, float width, float height);
 	void SetAdaptive(bool adaptive = true);
 
-	void AddItem(const std::string & path);
+	void AddItem(const std::wstring & path);
 
 	const std::vector<Item>* GetVector() const;
 
