@@ -682,9 +682,10 @@ void ExportOther(const std::map<std::wstring, int>& other, const std::wstring& d
 			if (GetFileAttributesExW(file.c_str(), GetFileExInfoStandard, &fInfo))
 			{
 				SYSTEMTIME systime;
-
-				FileTimeToSystemTime(&fInfo.ftLastWriteTime, &systime);
-
+				FILETIME localFTime;
+				FileTimeToLocalFileTime(&fInfo.ftLastWriteTime, &localFTime);
+				//FileTimeToSystemTime(&fInfo.ftLastWriteTime, &systime);
+				FileTimeToSystemTime(&localFTime, &systime);
 				std::wstring monthNumber = std::to_wstring(systime.wMonth);
 				std::wstring dayNumber = std::to_wstring(systime.wDay);
 				std::wstring hourNumber = std::to_wstring(systime.wHour);
@@ -739,7 +740,7 @@ void ExportOther(const std::map<std::wstring, int>& other, const std::wstring& d
 						}
 					}
 				}
-			
+
 			}
 		}
 	}
